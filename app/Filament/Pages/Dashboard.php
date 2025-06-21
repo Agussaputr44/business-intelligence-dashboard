@@ -2,42 +2,62 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Dashboard as BaseDashboard;
+use Filament\Pages\Page;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\DB;
 
-class Dashboard extends BaseDashboard
+class Dashboard extends Page implements HasForms
 {
-    protected static ?string $navigationIcon = 'heroicon-o-home';
+    use InteractsWithForms;
 
-    protected function getFilters(): array
+    protected static string $view = 'filament.pages.dashboard';
+
+    public ?array $filters = [];
+
+    public function mount(): void
+    {
+        $this->form->fill();
+    }
+
+    public function getFormSchema(): array
     {
         return [
-            Select::make('country')
-                ->options(DB::table('dim_country')->pluck('country', 'country')->toArray())
-                ->multiple()
-                ->default(['Canada', 'Germany', 'Mexico', 'United States of America']),
-            Select::make('year')
-                ->options(DB::table('dim_time')->pluck('year', 'year')->unique()->toArray())
-                ->multiple()
-                ->default([2013, 2014]),
-            Select::make('product')
-                ->options(DB::table('dim_product')->pluck('product', 'product')->toArray())
+            Select::make('filters.year')
+                ->label('Tahun')
+                ->options(DB::table('dim_time')->distinct()->pluck('year', 'year')->toArray())
+                ->searchable()
                 ->multiple(),
-            Select::make('month_name')
-                ->options(DB::table('dim_time')->pluck('month_name', 'month_name')->unique()->toArray())
+
+            Select::make('filters.month')
+                ->label('Bulan')
+                ->options(DB::table('dim_time')->distinct()->pluck('month_name', 'month_name')->toArray())
+                ->searchable()
+                ->multiple(),
+
+            Select::make('filters.product')
+                ->label('Produk')
+                ->options(DB::table('dim_product')->distinct()->pluck('product', 'product')->toArray())
+                ->searchable()
                 ->multiple(),
         ];
     }
 
-    // Opsional: Terapkan filter ke widget atau data
-    protected function getPages(array $data = []): array
+    // public function getForm(): Form
+    // {
+    //     return parent::getForm()
+    //         ->schema($this->getFormSchema());
+    // }
+
+    public function getHeaderActions(): array
     {
-        $filters = $this->getFiltersForm()->getState(); // Ambil state filter dari form
-        return [
-            // Daftarkan widget Anda di sini, misalnya
-            \App\Filament\Widgets\MonthlySalesTrendChart::class,
-            \App\Filament\Widgets\SalesByCountryChart::class,
-        ];
+        return [];
+    }
+
+    public function getFilters(): array
+    {
+        return $this->filters ?? [];
     }
 }

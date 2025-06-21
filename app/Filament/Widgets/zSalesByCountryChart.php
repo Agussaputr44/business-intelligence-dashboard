@@ -6,7 +6,7 @@ use Filament\Widgets\ChartWidget;
 use App\Models\Sale; // Pastikan model ini ada atau sesuaikan dengan struktur Anda
 use Illuminate\Support\Facades\DB;
 
-class SalesByCountryChart extends ChartWidget
+class zSalesByCountryChart extends ChartWidget
 {
     protected static ?string $heading = 'Tren Penjualan Berdasarkan Negara';
 
